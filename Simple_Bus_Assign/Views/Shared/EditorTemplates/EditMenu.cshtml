@@ -1,0 +1,95 @@
+﻿@model Simple_Bus_Assign.Models.IndexViewModel
+@{
+    ViewBag.Title = "_EditMenu";
+}
+
+
+@Html.HiddenFor(model => model.Bus_Number, new { id = "hiddenBusNumber" })
+<table>
+    <tr>
+        <td><h3>Bus Number:</h3></td>
+        <td>@(Html.Kendo().DropDownListFor(model => model.Bus_Id)
+                .DataTextField("Bus_Number")
+                .DataValueField("Bus_Id")
+                .SelectedIndex(Model.Bus_Id)
+                .HtmlAttributes(new { id = "drpBusId" })
+                .DataSource(source =>
+                {
+                    source.Custom()
+                    .Type("aspnetmvc-ajax")
+                    .Transport(transport =>
+                    {
+                        transport.Read("GetBuses", "Index");
+                    })
+                .Schema(schema =>
+                {
+                    schema.Data("Data")
+                        .Total("Total");
+                });
+                }))
+        </td>
+    </tr>
+    <tr>
+        <td><h3>Route Name:</h3></td>
+        <td>@(Html.Kendo().ComboBoxFor(model => model.Route_Id)
+          .DataTextField("Route_Name")
+          .DataValueField("Route_Id")
+          .Placeholder("Select Route")
+          .Filter("contains")
+          .AutoBind(false)
+          .MinLength(1)
+                .DataSource(source =>
+                {
+                    source.Custom()
+                    .Type("aspnetmvc-ajax")
+                    .Transport(transport =>
+                    {
+                        transport.Read("GetRoutes", "Index");
+                    })
+                .Schema(schema =>
+                {
+                    schema.Data("Data")
+                        .Total("Total");
+                });
+                }))
+            </td>
+    </tr>
+    <tr>
+        <td><h3>Driver Name:</h3></td>
+        <td>
+            @(Html.Kendo().ComboBoxFor(model => model.Driver_Id)
+          .DataTextField("Driver_Name")
+          .DataValueField("Driver_Id")
+          .Placeholder("Select Driver")
+          .Filter("contains")
+          .AutoBind(false)
+          .MinLength(1)
+                .DataSource(source =>
+                {
+                    source.Custom()
+                    .Type("aspnetmvc-ajax")
+                    .Transport(transport =>
+                    {
+                        transport.Read("GetDrivers", "Index");
+                    })
+                .Schema(schema =>
+                {
+                    schema.Data("Data")
+                        .Total("Total");
+                });
+                }))
+    </td>
+    </tr>
+    <tr>
+        <td><h3>Start Date:</h3></td>
+        <td>@Html.Kendo().DateTimePickerFor(model => model.StartDateTime).HtmlAttributes(new { style = "width: 250px", required = "required" })
+</td>
+    </tr>
+    <tr>
+        <td><h3>End Date:</h3></td>
+        <td>@Html.Kendo().DateTimePickerFor(model => model.EndDateTime).HtmlAttributes(new { style = "width: 250px", required = "required" })
+</td>
+    </tr>
+</table>
+
+

@@ -1,0 +1,101 @@
+﻿@using Kendo.Mvc.UI
+@using Simple_Bus_Assign.Models
+@model IndexViewModel
+@{
+    ViewBag.Title = "Index";
+}
+<script type="text/x-kendo-template" id="templateBusDetails">
+    <div id="details-container">
+        <table class="table-responsive">
+            <tr>
+                <td style="width:200px"><h4>Bus Number :</h4></td>
+            
+                <td style="width:200px"><h4>#= Bus_Number #</h4></td>
+            </tr>
+            <tr>
+                <td style="width:200px"><h4>Number of Seats :</h4></td>
+                <td style="width:200px"><h4>#= Seat_Capacity #</h4></td>
+            </tr>
+        </table>
+    </div>
+</script>
+
+<script type="text/javascript">
+    function showBusDetails(e) {
+       // debugger;
+        var busDetailsTemplate = kendo.template($("#templateBusDetails").html());
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var wnd = $("#Details").data("kendoWindow");
+
+        wnd.content(busDetailsTemplate(dataItem));
+        wnd.center().open();
+    };
+</script>
+<script>
+    function error_handler(e) {
+      //  alert("error");
+    }
+    function sync_handler(e) {
+      //  debugger;
+        this.read();
+    }
+</script>
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8" style="text-align:center">
+        @(Html.Kendo().Grid<IndexViewModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.Assign_Id).Title("ID").Hidden(true);
+        columns.Bound(c => c.Bus_Number).Title("Bus Number");
+        columns.Command(command => command.Custom("View").Click("showBusDetails")).Width(180).Title("Bus Details");
+        columns.Bound(c => c.Driver_Name).Title("Driver Name");
+        columns.Bound(c => c.Route_Name).Title("Route Name");
+        columns.Bound(c => c.StartDateTime).Title("Route Start Time").Format("{0:yyyy-MM-dd hh:mm tt}");
+        columns.Bound(c => c.EndDateTime).Title("Route End Time").Format("{0:yyyy-MM-dd hh:mm tt}");
+        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+    })
+    .ToolBar(toolbar => toolbar.Excel())
+    .ToolBar(toolbar => toolbar.Create())
+    .Excel(excel => excel
+        .FileName("Assigned.xlsx")
+        .Filterable(true))
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("EditMenu"))
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+
+    .HtmlAttributes(new { style = "height:550px;" })
+    .DataSource(dataSource => dataSource
+
+        .Ajax()
+        .Model(model=>
+        {
+            model.Field(x => x.Assign_Id);
+            model.Field(x => x.Driver_Name);
+            model.Field(x => x.Bus_Number);
+            model.Field(x => x.Route_Name);
+        })
+        .PageSize(20)
+        .Model(model => model.Id(c => c.Assign_Id))
+        .Create(update => update.Action("EditingPopup_Create", "Index"))
+        .Read(read => read.Action("Assigned_Read", "Index"))
+        .Update(update => update.Action("Editing_Assigned", "Index"))
+        .Destroy(update => update.Action("EditingPopup_Destroy", "Index"))
+             .Events(events => events.Error("error_handler").Sync("sync_handler"))
+    ))
+    </div>
+    <div class="col-md-2">
+        @(Html.Kendo().Window().Name("Details")
+            .Title("Details")
+            .Visible(false)
+            .Modal(true)
+            .Draggable(true)
+            .Width(400)
+            )
+    </div>
+</div>
